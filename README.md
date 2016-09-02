@@ -1,2 +1,2 @@
 # Fastfiles
-Fastlane fastfile examples and custom actions
+This repository contains a few fastlane fastfile examples and some custom actions that used by our team.
