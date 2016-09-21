@@ -17,7 +17,7 @@ platform :ios do
   
   desc 'Deploy a new version to the App Store'
   lane :do_deliver_app do |options|
-    ENV["FASTLANE_PASSWORD"] = options[:itc_password]
+    app_identifier   = options[:app_identifier]
     project          = options[:project]
     scheme           = options[:scheme]
     version          = options[:version] 
@@ -32,6 +32,9 @@ platform :ios do
 
     hipchat(message: "Pod install")
     cocoapods
+
+    cert(username: ENV["FASTLANE_USER"])
+    sigh(force: true, username: ENV["FASTLANE_USER"], app_identifier: app_identifier)
     
     hipchat(message: "Update build number to #{build} and building ipa")
     update_build_number(version: build, plist: "#{project}/Info.plist")
