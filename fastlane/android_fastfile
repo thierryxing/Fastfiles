@@ -42,8 +42,8 @@ platform :android do
     gradle(task: "assembleGmtest")
     (1..times.to_i).each do |i|
       adb(command: "install -r #{apk_path}")
-      # 防止点击启动的图片进入一个UI Hole，所以先启动，然后休息30秒再进行Monkey
       adb(command: "shell monkey -p #{package_name} -c android.intent.category.LAUNCHER 1")
+      # Wait for 30 seconds, and make sure the Splash Activity finished.
       sleep(30)
       android_monkey(package_name: "#{package_name}", count: '1000', seed: "#{10+i}")
     end
