@@ -35,8 +35,7 @@ platform :android do
     git_pull
     create_local_properties(user: "", password: "")
     gradle(task: "clean")
-    gradle(task: "assembleGmtest")
-    
+    gradle(task: "assembleGmtest")    
     hipchat(message: "Build #{project} successfully! [Test]")
   end
   
@@ -65,9 +64,9 @@ platform :android do
     update_gradle_version(version: target_version)
     create_local_properties(user: "", password: "")
     gradle(task: "upload")
-    git_commit_all(message: "Bump version to #{target_version}") # 提交版本号修改
-    add_git_tag(tag: target_version, message: release_notes || "Bump version to #{target_version}") # 设置 tag
-    push_to_git_remote # 推送到 git 仓库
+    git_commit_all(message: "Bump version to #{target_version}") 
+    add_git_tag(tag: target_version, message: release_notes || "Bump version to #{target_version}") 
+    push_to_git_remote 
     
     hipchat(message: "Release aar #{project} successfully!")
   end
