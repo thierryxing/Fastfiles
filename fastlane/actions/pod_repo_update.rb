@@ -4,9 +4,8 @@ module Fastlane
     # Updates the local clone of the spec-repo
     class PodRepoUpdateAction < Action
       def self.run(params)
-        cmd = ["pod repo update"]
-        cmd << params[:name] if params[:name]
-        result = Actions.sh(cmd.join(" "))
+        cmd = " pod repo update GMSpecs;pod repo update gengmei-gmspecs;pod repo update gengmei-gengmeiios-gmspecs"
+        result = Actions.sh(cmd.to_s)
         UI.success("Successfully pod repo update 💾.")
         return result
       end
@@ -27,13 +26,6 @@ module Fastlane
 
       def self.available_options
         # Define all options your action supports. 
-        
-        # Below a few examples
-        [
-          FastlaneCore::ConfigItem.new(key: :name,
-                                       description: "name of the spec-repo"
-                                       )
-        ]
       end
 
       def self.output

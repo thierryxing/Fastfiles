@@ -2,7 +2,7 @@ module Fastlane
   module Actions
     class PodInstallAction < Action
       def self.run(params)
-      	Actions.sh "cd Example && pod install"
+      	Actions.sh "pod repo update GMSpecs && cd Example && pod install"
         Helper.log.info "Successfully pod install ⬆️ ".green
       end
 

@@ -14,6 +14,7 @@ module Fastlane
         command = ['adb shell monkey']
         command << "-p #{package_name}"
         command << '--ignore-security-exceptions'
+        command << '--ignore-crashes'
         command << '--ignore-timeouts'
         command << '--monitor-native-crashes'
         command << '--monitor-native-crashes'

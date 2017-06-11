@@ -13,18 +13,22 @@ module Fastlane
     class GetDebugAppPathAction < Action
       
       def self.run(params)
+        # fastlane will take care of reading in the parameter and fetching the environment variable:
         project = params[:project]
         scheme = params[:scheme]
+        ios_sdk = params[:ios_sdk]
+        
         command = ['xcodebuild']
         command << '-workspace'
         command << "#{project}.xcworkspace"
         command << '-scheme'
         command << "#{scheme}"
         command << '-sdk'
-        command << "iphonesimulator9.3"
+        command << ios_sdk
         command << '-arch'
         command << "x86_64"
-        command << '-configuration Debug -showBuildSettings | grep CONFIGURATION_BUILD_DIR'
+        command << '-configuration UnitTest -showBuildSettings | grep CONFIGURATION_BUILD_DIR'
+        
         output_result = Actions.sh command.join(' ')
         configure = output_result.match(/CONFIGURATION_BUILD_DIR = (.*)/i).captures
         File.join(configure[0],"#{scheme}.app")
@@ -53,6 +57,9 @@ module Fastlane
                                       is_string: true),
           FastlaneCore::ConfigItem.new(key: :scheme,
                                       description: "scheme name",
+                                      is_string: true),
+          FastlaneCore::ConfigItem.new(key: :ios_sdk,
+                                      description: ":ios sdk",
                                       is_string: true)
         ]
       end
