@@ -2,105 +2,54 @@ fastlane_version "2.2.0"
 
 default_platform :android
 
-ENV['HIPCHAT_API_VERSION'] = '2'
-ENV['HIPCHAT_API_HOST'] = 'hipchat.gengmei.cc'
-ENV['FL_HIPCHAT_FROM'] = 'jaguar-bot'
-ENV['HIPCHAT_NOTIFY_ROOM'] = 'true'
-ENV["FL_HIPCHAT_CHANNEL"] = "Android%20Team"
-ENV["HIPCHAT_API_TOKEN"] = ""
 ENV["JG_ANDROID_SDK_DIR"] = %x( echo $ANDROID_HOME ).chomp
 
 platform :android do
 
   desc "Deliver a new app version"
   lane :do_deliver_app do |options|
-    project = "#{options[:project]}"
-    target_version = options[:version]
-    
-    hipchat(message: "Start deliver #{project} at version #{target_version}")
-    
     git_pull
-    create_local_properties(user: "", password: "")
+    create_properties
     gradle(task: "clean")
     gradle(task: "assembleRelease")
-    
-    hipchat(message: "Deliver app #{project} successfully! [Production]")
   end
-  
+
   desc "Publish a test version"
   lane :do_publish_test do |options|
-    project = "#{options[:project]}"    
-    hipchat(message: "Start build test #{project}")
-    
     git_pull
-    create_local_properties(user: "", password: "")
-    gradle(task: "clean")
-    gradle(task: "assembleGmtest")    
-    hipchat(message: "Build #{project} successfully! [Test]")
+    assemble_test
   end
-  
+
   desc "Publish a test version"
   lane :do_publish_beta do |options|
-    project = "#{options[:project]}"    
-    hipchat(message: "Start build beta #{project}")
-  
-    create_local_properties(user: "", password: "")
-    gradle(task: "clean")
-    gradle(task: "assembleGmtest")
-    
-    hipchat(message: "Build #{project} successfully! [Beta]")
+    assemble_test
   end
-  
+
   desc "Release a new version to the Gengmei Maven Repo"
   lane :do_release_lib do |options|
-    project        = options[:project]
     target_version = options[:version]
-    release_notes  = options[:release_notes]
-    
-    hipchat(message: "Start release aar #{project} at version #{target_version}")
-    hipchat(message: release_notes)
-    
+
     git_pull
     update_gradle_version(version: target_version)
-    create_local_properties(user: "", password: "")
+    create_properties
     gradle(task: "upload")
-    git_commit_all(message: "Bump version to #{target_version}") 
-    add_git_tag(tag: target_version, message: release_notes || "Bump version to #{target_version}") 
-    push_to_git_remote 
-    
-    hipchat(message: "Release aar #{project} successfully!")
+    git_commit_all(message: "Bump version to #{target_version}") # 提交版本号修改
+    add_git_tag(tag: target_version, message: "Bump version to #{target_version}") # 设置 tag
+    push_to_git_remote # 推送到 git 仓库
   end
-  
-  desc "Android monkey test"
-  lane :do_monkey_test do |options|
-    times        = options[:times] || 2 
-    project      = options[:project]
-    apk_path     = options[:apk_path]
-    package_name = options[:package_name]
-    
-    hipchat(message: "Start monkey test on #{project}")
-    
-    git_pull
-    create_local_properties(user: "", password: "")
+
+  private_lane :create_properties do |options|
+    create_local_properties(user: 'liuguanglei', password: 'liuguanglei')
+  end
+
+  private_lane :assemble_test do |options|
+    create_properties
     gradle(task: "clean")
     gradle(task: "assembleGmtest")
-    (1..times.to_i).each do |i|
-      adb(command: "install -r #{apk_path}")
-      # 防止点击启动的图片进入一个UI Hole，所以先启动，然后休息30秒再进行Monkey
-      adb(command: "shell monkey -p #{package_name} -c android.intent.category.LAUNCHER 1")
-      sleep(30)
-      android_monkey(package_name: "#{package_name}", count: '1000', seed: "#{10+i}")
-    end
-    
-    hipchat(message: "Execute monkey test on project #{project} successfully")
   end
 
   error do |lane, exception|
-    hipchat(
-    custom_color: 'red',
-    message: exception.message,
-    success: false
-    )
+    UI.message(exception.message)
   end
 
 end
