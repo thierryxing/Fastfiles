@@ -7,6 +7,7 @@ platform :ios do
   MASTER_PATH = "https://github.com/CocoaPods/Specs"
   PRIVATE_PATH = "git@git.yourdomain.com:ios/YourSpecs.git"
   SOURCES = [MASTER_PATH, PRIVATE_PATH]
+  FIR_APPKEY = 'your fir key'
 
 
   desc 'Deploy a new version to the App Store'
@@ -71,6 +72,7 @@ platform :ios do
 
     git_pull_and_pod
     gym(scheme: scheme, clean: false, output_directory: output_directory, output_name: output_name, export_method: 'ad-hoc')
+    upload_app_to_fir(file_path: File.join(output_directory,"#{output_name}.ipa"), app_key:FIR_APPKEY)
   end
 
   private_lane :git_pull_and_pod do |options|
