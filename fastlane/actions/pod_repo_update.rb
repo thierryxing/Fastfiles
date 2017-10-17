@@ -4,7 +4,7 @@ module Fastlane
     # Updates the local clone of the spec-repo
     class PodRepoUpdateAction < Action
       def self.run(params)
-        cmd = " pod repo update GMSpecs;pod repo update gengmei-gmspecs;pod repo update gengmei-gengmeiios-gmspecs"
+        cmd = "pod repo update"
         result = Actions.sh(cmd.to_s)
         UI.success("Successfully pod repo update 💾.")
         return result
