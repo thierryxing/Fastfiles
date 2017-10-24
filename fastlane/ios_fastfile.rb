@@ -24,7 +24,7 @@ platform :ios do
     git_pull_and_pod
 
     update_build_number(version: build, plist: plist)
-    gym(scheme: scheme, clean: true, output_directory: output_directory, output_name: output_name, export_method: 'app-store')
+    gym(scheme: scheme, configuration:'AppStore', clean: true, output_directory: output_directory, output_name: output_name, export_method: 'app-store')
 
     deliver(force: false, skip_screenshots: true, skip_metadata: true)
 
