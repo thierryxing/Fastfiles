@@ -3,7 +3,10 @@ fastlane_version "2.38.0"
 default_platform :ios
 
 platform :ios do
-
+  
+  FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT = 20
+  FASTLANE_XCODEBUILD_SETTINGS_RETRIES = 10
+  
   MASTER_PATH = "https://github.com/CocoaPods/Specs"
   PRIVATE_PATH = "git@git.yourdomain.com:ios/YourSpecs.git"
   SOURCES = [MASTER_PATH, PRIVATE_PATH]
