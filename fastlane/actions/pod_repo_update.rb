@@ -4,8 +4,12 @@ module Fastlane
     # Updates the local clone of the spec-repo
     class PodRepoUpdateAction < Action
       def self.run(params)
-        cmd = "pod repo update"
-        result = Actions.sh(cmd.to_s)
+        cmd = []
+        repos = params[:repos]
+        repos.each do |repo|
+          cmd << "pod repo update #{repo}"
+        end
+        result = Actions.sh(cmd.join(";").to_s)
         UI.success("Successfully pod repo update 💾.")
         return result
       end
@@ -26,6 +30,13 @@ module Fastlane
 
       def self.available_options
         # Define all options your action supports. 
+        [
+          FastlaneCore::ConfigItem.new(key: :repos,
+                                       description: "Repos",
+                                       is_string: false,
+                                       verify_block: proc do |value|
+                                       end),
+        ]
       end
 
       def self.output
