@@ -4,8 +4,8 @@ default_platform :ios
 
 platform :ios do
   
-  FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT = 20
-  FASTLANE_XCODEBUILD_SETTINGS_RETRIES = 10
+  ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "30"
+  ENV["FASTLANE_XCODEBUILD_SETTINGS_RETRIES"] = "20"
   
   MASTER_PATH = "https://github.com/CocoaPods/Specs"
   PRIVATE_PATH = "git@git.wanmeizhensuo.com:gengmeiios/GMSpecs.git"
