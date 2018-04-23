@@ -2,17 +2,15 @@ fastlane_version "2.85.0"
 
 default_platform :ios
 
+ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "30"
+ENV["FASTLANE_XCODEBUILD_SETTINGS_RETRIES"] = "20"
+
 platform :ios do
   
-  ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "30"
-  ENV["FASTLANE_XCODEBUILD_SETTINGS_RETRIES"] = "20"
-  
   MASTER_PATH = "https://github.com/CocoaPods/Specs"
-  PRIVATE_PATH = "git@git.wanmeizhensuo.com:gengmeiios/GMSpecs.git"
-  PRIVATE_SPEC = "GMSpecs"
+  PRIVATE_PATH = "git@git.yourcompany.com:your_group/YourSpecs.git"
+  PRIVATE_SPEC = "YourSpecs"
   SOURCES = [MASTER_PATH, PRIVATE_PATH]
-  FIR_APPKEY = "af76f16546e69c09de1f6d2e7101f40c"
-
 
   desc 'Deploy a new version to the App Store'
   lane :do_publish_prod do |options|
@@ -22,13 +20,13 @@ platform :ios do
     build = options[:build_number] || Time.now.strftime('%Y%m%d%H%M')
     output_directory = options[:ios_output_directory]
     output_name = options[:ios_output_name]
-    plist = options[:ios_plist]
+    plist = options[:ios_plist_file]
     branch = options[:git_branch]
 
     git_pull_and_pod
 
     update_build_number(version: build, plist: plist)
-    gym(scheme: scheme, configuration:'AppStore', clean: true, output_directory: output_directory, output_name: output_name, export_method: 'app-store', silent: true)
+    gym(scheme: scheme, configuration:'AppStore', clean: true, output_directory: output_directory, output_name: output_name, export_method: 'app-store', silent: true, suppress_xcode_output:true)
 
     deliver(force: false, skip_screenshots: true, skip_metadata: true)
 
@@ -44,8 +42,8 @@ platform :ios do
     podspec_path = options[:ios_podspec_path]
 
     git_pull
-    pod_repo_update(repos: [PRIVATE_SPEC])
-    pod_install(name: PRIVATE_SPEC)
+    pod_repo_update(repo: PRIVATE_SPEC)
+    pod_install(repo: PRIVATE_SPEC)
 
     pod_lib_lint(verbose: false, allow_warnings: true, sources: SOURCES, use_bundle_exec: true, fail_fast: true)
     version_bump_podspec(path: podspec_path, version_number: target_version) # 更新 podspec
@@ -54,16 +52,16 @@ platform :ios do
     push_to_git_remote # 推送到 git 仓库
 
     pod_push(path: podspec_path, repo: PRIVATE_SPEC, allow_warnings: true, sources: SOURCES) # 提交到 CocoaPods
-    pod_repo_update(repos: [PRIVATE_SPEC])
+    pod_repo_update(repo: PRIVATE_SPEC)
   end
 
   desc 'Publish a beta version'
   lane :do_publish_beta do |options|
-    scheme = options[:scheme]
+    scheme = options[:ios_scheme]
     output_directory = options[:output_directory]
     output_name = options[:output_name]
     cocoapods
-    gym(scheme: scheme, configuration:'Release', output_directory: output_directory, output_name: output_name, export_method: 'ad-hoc', silent: true)
+    gym(scheme: scheme, configuration:'Release', output_directory: output_directory, output_name: output_name, export_method: 'ad-hoc', silent: true, suppress_xcode_output:true)
   end
 
   desc 'Publish a test version'
@@ -81,7 +79,7 @@ platform :ios do
 
   private_lane :git_pull_and_pod do |options|
     git_pull
-    pod_repo_update(name: PRIVATE_SPEC)
+    pod_repo_update(repo: PRIVATE_SPEC)
     cocoapods
   end
 
